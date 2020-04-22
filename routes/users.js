@@ -88,4 +88,61 @@ router.get('/logout',(req,res)=>{
     }
 })
 
+router.post("/contacts", (req, res) => {
+    if (req.session.user) {
+        const { name, phone, relationship, email } = req.body
+        let errors = []
+        if (!name || !phone )
+            errors.push({ msg: "name or phone number cannot be empty" })
+        else {
+            var sql = `INSERT INTO friends (name, email, phone, relationship, userID) VALUES ?`
+            const values = [
+                [name, email, phone, relationship, req.session.user.id],
+            ]
+
+            mySqlConnection.query(sql, [values], err => {
+                if (err) res.status(500).send(err)
+                res.status(200).send("contact saved")
+            })
+        }
+    } else res.status(401).send("login to post")
+})
+
+router.get("/contacts", (req, res) => {
+    if (req.session.user) {
+        mySqlConnection.query(
+            "SELECT * FROM friends WHERE userID = ?",
+            [req.session.user.id],
+            (err, rows) => {
+                if (err) res.status(500).send(err)
+                req.session.contacts = rows
+                res.status(200).send(rows)
+            },
+        )
+    } else res.status(401).send("login to view")
+})
+
+router.post("/contacts/:contactID", (req, res) => {
+    if (req.session.user) {
+        const { name, phone, relationship, email } = req.body
+        mySqlConnection.query(
+            "SELECT * FROM friends WHERE id = ? AND userID = ?",
+            [req.params.contactID, req.session.user.id],
+            (err, rows) => {
+                if (err) res.status(500).send(err)
+                if (!rows.length) res.status(401).send("you don't have this contact")
+                else {
+                    mySqlConnection.query(
+                        "UPDATE contacts SET name=?, phone=?, relationship=?, email=? WHERE contactID = ?",
+                        [name, phone, relationship, email, req.params.contactID],
+                        err => {
+                            if (err) res.status(500).send(err)
+                            res.status(200).send("updated")
+                        },
+                    )
+                }
+            },
+        )
+    } else res.status(401).send("login to update")
+})
 module.exports = router
