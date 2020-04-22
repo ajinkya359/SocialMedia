@@ -13,6 +13,23 @@ router.get("/login", (req, res) => {
     res.status(200).send("login page here!")
 })
 
+
+router.post('/login',(req,res)=>{
+    const {email,password}=req.body;
+    mySqlConnection.query(
+        "select * from users where email=?",
+        [email],
+        (err,rows)=>{
+            if(err) res.status(500).send(err);
+            else if(rows.length===0) res.status(404).send("The user is not registered");
+            else{
+                const user=rows[0];
+                if(bcrypt.compareSync(password,user.hash)) res.status(200).send(user);
+                else res.send("incorrect password");
+            }
+        }
+    )
+})
 router.post('/register',(req,res)=>{
     let errors=[];
     const {name,email,password,phone}=req.body;
