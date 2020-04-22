@@ -6,11 +6,21 @@ const mySqlConnection = require("../Database/database")
 let user
 
 router.get("/register", (req, res) => {
-    res.status(200).send('register form will be here')
+    if(!req.session.user){
+        res.status(200).send("Registraion form here");
+    }
+    else{
+        res.status(401).send("You are already logged in");
+    }
 })
 
 router.get("/login", (req, res) => {
-    res.status(200).send("login page here!")
+    if(!req.session.user){
+        res.status(200).send("Login page here");
+    }
+    else {
+        res.status(401).send("Logout first to login again");
+    }
 })
 
 
@@ -24,7 +34,10 @@ router.post('/login',(req,res)=>{
             else if(rows.length===0) res.status(404).send("The user is not registered");
             else{
                 const user=rows[0];
-                if(bcrypt.compareSync(password,user.hash)) res.status(200).send(user);
+                if(bcrypt.compareSync(password,user.hash)){
+                    req.session.user=user;
+                    res.status(200).send(user);
+                }
                 else res.send("incorrect password");
             }
         }
@@ -63,6 +76,16 @@ router.post('/register',(req,res)=>{
             }
         }
     )
+});
+
+router.get('/logout',(req,res)=>{
+    if(req.session.user){
+        req.session.destroy();
+        res.status(200).send("logout successfull");
+    }
+    else{
+        res.status(400).send('you are not logged out');
+    }
 })
 
 module.exports = router
