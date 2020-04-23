@@ -5,7 +5,8 @@ router.get('/', (req, res) => res.status(200).send('home-page'));
 
 router.get('/dashboard',(req,res)=>{
     if(req.session.user)
-        res.status(200).send(req.session.user);
+        res.render("dashboard.ejs",{name:req.session.user.name});
+        // res.status(200).send(req.session.user);
     else
         res.status(401).send("You are not logged in");
 })

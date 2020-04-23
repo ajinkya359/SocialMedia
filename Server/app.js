@@ -1,8 +1,15 @@
 const express=require('express')
 const app=express();
+const cors=require('cors');
+
 const session=require('express-session');
 const bodyParser=require('body-parser');
 app.use(bodyParser.json());
+app.use(express.static('../public'));
+app.set('views engine','ejs');
+app.set('views','../views');
+
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
     secret:'seCRet',

@@ -1,6 +1,5 @@
 const express = require("express")
 const router = express.Router();
-
 const bcrypt = require("bcrypt")
 const mySqlConnection = require("../Database/database")
 let user
@@ -16,7 +15,7 @@ router.get("/register", (req, res) => {
 
 router.get("/login", (req, res) => {
     if(!req.session.user){
-        res.status(200).send("Login page here");
+res.render("login.ejs");
     }
     else {
         res.status(401).send("Logout first to login again");
@@ -36,7 +35,8 @@ router.post('/login',(req,res)=>{
                 const user=rows[0];
                 if(bcrypt.compareSync(password,user.hash)){
                     req.session.user=user;
-                    res.status(200).send(user);
+                    res.render("dashboard.ejs",{name:req.session.user.name});
+                    // res.status(200).send(user);
                 }
                 else res.send("incorrect password");
             }
