@@ -6,7 +6,9 @@ let user
 
 router.get("/register", (req, res) => {
     if(!req.session.user){
-        res.status(200).send("Registraion form here");
+        // res.render('register.ejs');
+        res.render("register.ejs");
+        // res.status(200).send("Registraion form here");
     }
     else{
         res.status(401).send("You are already logged in");
@@ -70,7 +72,7 @@ router.post('/register',(req,res)=>{
                     [[[name,email,phone,hash]]],
                     (err)=>{
                         if(err) res.send(err)
-                        else res.status(200).send("Successfully Registered")
+                        else res.status(200).redirect("localhost:3000/users/login")
                     }
                 )
             }
