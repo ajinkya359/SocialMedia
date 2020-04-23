@@ -3,12 +3,13 @@ body {
     padding: 0;
     height: 100vh;
     background: #2F323A;
-    background: url(../img/1.jpg) no-repeat;
+    background: url(../img/background.png) no-repeat;
     background-size: cover;
+    opacity: 0.7;   
 }
 
 .form {
-    background: #000;
+    background: black;
     z-index: 1;
     font-family: "Candara", sans-serif;
     position: absolute;
@@ -19,7 +20,7 @@ body {
     padding: 0 45px 30px 45px;
     text-align: center;
     border-radius: 10px;
-    opacity: 0.9;
+    /*opacity: 0.7;*/
 }
 
 .form h2 {

@@ -133,7 +133,7 @@ router.post("/contacts/:contactID", (req, res) => {
                 if (!rows.length) res.status(401).send("you don't have this contact")
                 else {
                     mySqlConnection.query(
-                        "UPDATE contacts SET name=?, phone=?, relationship=?, email=? WHERE contactID = ?",
+                        "UPDATE friends SET name=?, phone=?, relationship=?, email=? WHERE contactID = ?",
                         [name, phone, relationship, email, req.params.contactID],
                         err => {
                             if (err) res.status(500).send(err)
