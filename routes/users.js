@@ -37,7 +37,7 @@ router.post('/login',(req,res)=>{
                 const user=rows[0];
                 if(bcrypt.compareSync(password,user.hash)){
                     req.session.user=user;
-                    res.render("dashboard.ejs",{name:req.session.user.name});
+                    res.redirect('/dashboard');
                     // res.status(200).send(user);
                 }
                 else res.send("incorrect password");
@@ -72,7 +72,7 @@ router.post('/register',(req,res)=>{
                     [[[name,email,phone,hash]]],
                     (err)=>{
                         if(err) res.send(err)
-                        else res.status(200).redirect("localhost:3000/users/login")
+                        else res.status(200).redirect('/users/login')
                     }
                 )
             }
@@ -83,10 +83,10 @@ router.post('/register',(req,res)=>{
 router.get('/logout',(req,res)=>{
     if(req.session.user){
         req.session.destroy();
-        res.status(200).send("logout successfull");
+        res.status(200).redirect('/users/login');
     }
     else{
-        res.status(400).send('you are not logged out');
+        res.status(400).send('you are not logged in');
     }
 })
 
