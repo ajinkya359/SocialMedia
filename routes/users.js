@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router();
 const bcrypt = require("bcrypt")
 const multer=require('multer');
+const path=require('path')
 const mySqlConnection = require("../Database/database")
 let user;
 
@@ -10,7 +11,7 @@ const storage=multer.diskStorage({
         cb(null,'../public/UserImages');
     },
     filename:(req,file,cb)=>{
-        cb(null,file.originalname);
+        cb(null,file.fieldname+Date.now()+path.extname(file.originalname));
     }
 })
 const uploads=multer({storage:storage});
@@ -56,7 +57,7 @@ router.post('/login',(req,res)=>{
         }
     )
 })
-router.post('/register',(req,res)=>{
+router.post('/register',uploads.single('ProfileImage'),(req,res)=>{
     let errors=[];
     const {name,email,password,phone}=req.body;
     if(!name||!email||!password||!phone)
@@ -79,8 +80,8 @@ router.post('/register',(req,res)=>{
             else{
                 hash=bcrypt.hashSync(password,10);
                 mySqlConnection.query(
-                    "Insert into users(name,email,phone,hash) values ?",
-                    [[[name,email,phone,hash]]],
+                    "Insert into users(name,email,phone,hash,image) values ?",
+                    [[[name,email,phone,hash,req.file.filename]]],
                     (err)=>{
                         if(err) res.send(err)
                         else res.status(200).redirect('/users/login')
@@ -158,8 +159,5 @@ router.post("/contacts/:contactID", (req, res) => {
         )
     } else res.status(401).send("login to update")
 })
-router.post('/uploads',uploads.single('ProfileImage'),(req,res)=>{
-    console.log(req.file);
-    res.send("Uploaded the image");
-})
+
 module.exports = router
