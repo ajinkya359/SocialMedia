@@ -1,8 +1,19 @@
 const express = require("express")
 const router = express.Router();
 const bcrypt = require("bcrypt")
+const multer=require('multer');
 const mySqlConnection = require("../Database/database")
-let user
+let user;
+
+const storage=multer.diskStorage({
+    destination:(req,file,cb)=>{
+        cb(null,'../public/UserImages');
+    },
+    filename:(req,file,cb)=>{
+        cb(null,file.originalname);
+    }
+})
+const uploads=multer({storage:storage});
 
 router.get("/register", (req, res) => {
     if(!req.session.user){
@@ -146,5 +157,9 @@ router.post("/contacts/:contactID", (req, res) => {
             },
         )
     } else res.status(401).send("login to update")
+})
+router.post('/uploads',uploads.single('ProfileImage'),(req,res)=>{
+    console.log(req.file);
+    res.send("Uploaded the image");
 })
 module.exports = router
