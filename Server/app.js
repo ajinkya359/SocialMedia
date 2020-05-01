@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 app.use(express.static("../public"));
 app.set("views engine", "ejs");
 app.set("views", "../views");
+onlineusers=[ ];
 
 app.use(cors());
 app.use(
@@ -37,13 +38,26 @@ const server=app.listen(PORT, console.log(`Server has started on ${PORT}`));
 
 
 const io=socket(server);
-io.on('connection',(socket,f)=>{
+
+io.on('connection',(socket)=>{
+  socket.on('newUser',(userName)=>{
+    console.log('online users are');
+    socket.username=userName;
+    if(onlineusers.indexOf(socket.username)==-1){
+    onlineusers.push(socket.username);}
+    onlineusers.forEach(name=>{
+      console.log(name);
+    })
+    io.sockets.emit("newUser",onlineusers);
+  })
+  
   socket.on('chat-message',(from,message)=>{
         console.log("message from "+from+message);
         socket.broadcast.emit('chat-message',from,message);
     })
     socket.on('disconnect',()=>{
-        console.log("disconnected");
-       socket.broadcast.emit("chat-message","A user has disconnected");
+        console.log(socket.username+"disconnected");
+        onlineusers.splice(onlineusers.indexOf(socket.username),1);
+        io.sockets.emit('newUser',onlineusers);
     })
 });

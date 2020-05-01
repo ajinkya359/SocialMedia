@@ -43,17 +43,29 @@
       }
     </style>
   </head>
-  <body>
-    <ul id="messages"></ul>
+  <body style="height: 70vh;display: flex;justify-content: space-between;">
+    <div style="height: 95vh;">
+    <ul id="messages" style="overflow-y: auto;"></ul>
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
       <input id="name" hidden value="<%=name %>" />
     </form>
+    </div>
+    <div >
+      <h1>Online user</h1>
+      <ul id="online-users" style="overflow-y: auto;"></ul>
+
+    </div>
+    
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
       
       const socket = io();//and this is the socket from 
+      function newuser(){
+        socket.emit('newUser',document.getElementById('name').value);
+      }
+      newuser();
       document.querySelector('form').addEventListener('submit',(event)=>{
         event.preventDefault();
         var node=document.createElement('li');
@@ -68,6 +80,18 @@
         var node=document.createElement('li');
         node.appendChild(document.createTextNode(from+": "+message));
         document.getElementById('messages').appendChild(node);
+      })
+      socket.on('disconnected',(from)=>{
+        var node=document.createElement('li');
+      
+        node.appendChild(document.createTextNode(from+' Has connected'));
+        document.getElementById('messages').appendChild(node);
+      })
+      socket.on('newUser',(onlineUsers)=>{
+        document.querySelector('#online-users').innerHTML=" ";
+        onlineUsers.forEach(name => {
+          document.querySelector('#online-users').innerHTML+=`<li >${name}</li>`;
+        });
       })
     </script>
   </body>
