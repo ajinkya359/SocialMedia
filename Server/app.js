@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 app.use(express.static("../public"));
 app.set("views engine", "ejs");
 app.set("views", "../views");
-onlineusers=[ ];
+onlineusers={};
 
 app.use(cors());
 app.use(
@@ -43,21 +43,42 @@ io.on('connection',(socket)=>{
   socket.on('newUser',(userName)=>{
     console.log('online users are');
     socket.username=userName;
-    if(onlineusers.indexOf(socket.username)==-1){
-    onlineusers.push(socket.username);}
-    onlineusers.forEach(name=>{
+    if(onlineusers[socket.username]==null){
+    onlineusers[socket.username]=socket;
+  }
+    Object.keys(onlineusers).forEach(name=>{
       console.log(name);
     })
-    io.sockets.emit("newUser",onlineusers);
+    io.sockets.emit("newUser",Object.keys(onlineusers));
   })
   
-  socket.on('chat-message',(from,message)=>{
+  socket.on('chat-message',(from,message,callback)=>{
+      var msg=message.trim();
+      if(msg.substr(0,3)==='/w '){
+        var msg=msg.substr(3);
+        msg.trim();
+        var ind=msg.indexOf(' ');
+        if(ind==-1)//means no message
+        {
+          callback("Hey enter the message");
+        }else{
+        var name=msg.substr(0,ind);
+        var msg=msg.substr(ind+1);
+        if(onlineusers[name]!=null){
+          onlineusers[name].emit('private-message',from,msg.trim())
+        }else{
+          callback("The user is not online");
+        }
+        }
+        console.log("Whisper")
+      }else{
         console.log("message from "+from+message);
-        socket.broadcast.emit('chat-message',from,message);
-    })
+        io.sockets.emit('chat-message',from,message);
+      }
+      })
     socket.on('disconnect',()=>{
         console.log(socket.username+"disconnected");
-        onlineusers.splice(onlineusers.indexOf(socket.username),1);
-        io.sockets.emit('newUser',onlineusers);
+        delete onlineusers[socket.username]
+        io.sockets.emit('newUser',Object.keys(onlineusers));
     })
 });

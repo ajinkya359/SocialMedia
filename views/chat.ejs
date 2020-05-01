@@ -41,6 +41,14 @@
       #messages li:nth-child(odd) {
         background: #eee;
       }
+      .pvt{
+        color: gray;
+        font: italic;
+      }
+      .err{
+        color: red;
+        font: bold;
+      }
     </style>
   </head>
   <body style="height: 70vh;display: flex;justify-content: space-between;">
@@ -67,13 +75,15 @@
       }
       newuser();
       document.querySelector('form').addEventListener('submit',(event)=>{
+        var msg=document.getElementById("m").value.trim();
         event.preventDefault();
-        var node=document.createElement('li');
-        node.appendChild(document.createTextNode("me: "+document.getElementById("m").value));
-        document.getElementById('messages').appendChild(node);
-        socket.emit('chat-message',document.getElementById('name').value,document.getElementById("m").value);
-        document.getElementById("m").value="";
+        
+        socket.emit('chat-message',document.getElementById('name').value,document.getElementById("m").value,function(data){
+          document.querySelector('#messages').innerHTML+=`<li class="err"> ${data}</li>`;
 
+        });
+        document.getElementById("m").value="";
+        
       })
       
       socket.on('chat-message',(from,message)=>{
@@ -92,6 +102,10 @@
         onlineUsers.forEach(name => {
           document.querySelector('#online-users').innerHTML+=`<li >${name}</li>`;
         });
+      })
+      socket.on('private-message',(from,message)=>{
+        document.querySelector('#messages').innerHTML+=`<li class="pvt">${from}: ${message}</li>`;
+
       })
     </script>
   </body>
