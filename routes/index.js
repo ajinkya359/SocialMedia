@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const socket=require('socket.io');
+const mySqlConnection = require("../Database/database")
 
 router.get('/', (req, res) => res.status(200).send('home-page'));
 
@@ -19,5 +19,20 @@ router.get('/chat',(req,res)=>{
     else{
         res.status(404).send("Sorry But you need to login first");
     }
+})
+router.get('/people',(req,res)=>{
+     mySqlConnection.query(
+         "select * from users",
+         (err,rows)=>{
+             if(err) res.send(err);
+             else {
+                 var users=[]
+                 rows.forEach(user => {
+                     users.push(user.name);
+                 });
+                 res.render('people.ejs',{h:users})
+             }  
+         }
+     )
 })
 module.exports = router;
