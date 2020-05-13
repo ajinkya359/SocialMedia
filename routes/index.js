@@ -23,7 +23,43 @@ router.get('/chat', (req, res) => {
         res.status(404).send("Sorry But you need to login first");
     }
 })
+router.post('/addfriend', (req, res) => {
+    var values = [
+        [req.body.friendid, req.body.userid]
+    ]
+    if(!req.body.friendid||!req.body.userid)
+    {
+        res.send("USer or friend id not found");
+    }
+    else if(req.body.friendid===req.body.userid)
+    {
+        res.send("You cannot add yourself as friend")
+    }
+    else{
+        mySqlConnection.query(
+            "select * from frienduni where friendid=? and userid=?",
+            [req.body.friendid,req.body.userid],
+            (err,rows)=>{
+                if(err) res.send(err);
+                else if(rows.length) res.send("He is already you friend")
+                else{
+                    mySqlConnection.query(
+                        'insert into frienduni (friendid,userid) values ?',
+                        [values],
+                        (err) => {
+                            if (err) res.send(err)
+                            else res.send("Friend added");
+                        }
+                    )
+                }
+            }
+        )
+    }
+    
+    
+})
 router.get('/people', (req, res) => {
+if(req.session.user){
     mySqlConnection.query(
         "select * from users",
         (err, rows) => {
@@ -34,10 +70,14 @@ router.get('/people', (req, res) => {
                     users.push([user.name, user.id]);
                 });
                 res.render('people.ejs', {
-                    h: users
+                    h: users,
+                    id: req.session.user.id
                 })
             }
         }
-    )
+    )}
+    else{
+        res.send("Login first");
+    }
 })
 module.exports = router;
