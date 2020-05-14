@@ -23,7 +23,7 @@ router.get('/chat', (req, res) => {
         res.status(404).send("Sorry But you need to login first");
     }
 })
-router.post('/addfriend', (req, res) => {
+router.post('/addfollower', (req, res) => {
     var values = [
         [req.body.friendid, req.body.userid]
     ]
@@ -33,22 +33,22 @@ router.post('/addfriend', (req, res) => {
     }
     else if(req.body.friendid===req.body.userid)
     {
-        res.send("You cannot add yourself as friend")
+        res.send("You cannot follow yourself")
     }
     else{
         mySqlConnection.query(
-            "select * from frienduni where friendid=? and userid=?",
+            "select * from following where tofollowid=? and userid=?",
             [req.body.friendid,req.body.userid],
             (err,rows)=>{
                 if(err) res.send(err);
-                else if(rows.length) res.send("He is already you friend")
+                else if(rows.length) res.send("you are already following")
                 else{
                     mySqlConnection.query(
-                        'insert into frienduni (friendid,userid) values ?',
+                        'insert into following (tofollowid,userid) values ?',
                         [values],
                         (err) => {
                             if (err) res.send(err)
-                            else res.send("Friend added");
+                            else res.send("You are following him now");
                         }
                     )
                 }
@@ -67,7 +67,7 @@ if(req.session.user){
             else {
                 var users = []
                 rows.forEach(user => {
-                    users.push([user.name, user.id]);
+                    users.push([user.name, user.id,user.image]);
                 });
                 res.render('people.ejs', {
                     h: users,
@@ -80,6 +80,40 @@ if(req.session.user){
         res.send("Login first");
     }
 })
+router.get('/following',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select * from following where userid=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                if(err) res.send(err);
+                else if(!rows.length) res.send("You are not following anyone.");
+                else{
+                    var friendsid=[];
+
+                    rows.forEach(id=>{
+                        friendsid.push(id.tofollowid);
+                    });
+                    mySqlConnection.query(
+                        'select * from users where id in ?',
+                        [([friendsid])],
+                        (err,friendrows)=>{
+
+                            if(err) res.send(err);
+                            else res.render('followers.ejs',{
+                                h:friendrows
+                            })
+                        }
+                    )
+                }
+            }
+        )
+    }
+    else{
+        res.send("Login first to view who you are following")
+    }
+})
+
 router.get('/friends',(req,res)=>{
     if(req.session.user){
         mySqlConnection.query(
