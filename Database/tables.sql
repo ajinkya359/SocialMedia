@@ -16,3 +16,4 @@ create table friends
     (userID) REFERENCES users
     (id)
 );
+create table friends(friends int ,user int);
