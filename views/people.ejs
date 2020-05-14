@@ -19,6 +19,7 @@
         class="searchUser"
         onchange=""
         placeholder="Search Here"
+        
       />
     </div>
     <div class="all-users" style="border: 2px solid black;">
@@ -37,6 +38,8 @@
                 <div class="name">
                   <span class="user-name"><%=h[name][0]%></span>
                   <span class="user-image" hidden><%=h[name][2]%></span>
+                  <span class="user-id" hidden><%=h[name][1]%></span>
+                  
                   <form action="http://localhost:5000/addfollower" method="POST">
                     <input name="friendid" value=<%=h[name][1]%> hidden>
                     <input name="userid" value=<%=id%> hidden>
@@ -74,6 +77,9 @@
       var images=document.querySelectorAll(
         ".all-users ul li .block .user .user-info .name .user-image"
       );
+      var ids=document.querySelectorAll(
+        ".all-users ul li .block .user .user-info .name .user-id"
+      );
       console.log(lis);
       document
         .querySelector(".searchUser")
@@ -99,8 +105,10 @@
                     <div class="name">
                       <span class="user-name">${lis[i].innerHTML}</span>
                       <span class="user-image" hidden>${images[i].innerHTML}</span>
+                      <span class="user-id" hidden>${ids[i].innerHTML}<%=h[name][1]%></span>
+
                       <form action="http://localhost:5000/addfollower" method="POST">
-                        <input name="friendid" value=<%=h[name][1]%> hidden>
+                        <input name="friendid" value=${ids[i].innerHTML} hidden>
                         <input name="userid" value=<%=id%> hidden>
                           <button>
                           <img
@@ -110,7 +118,7 @@
                         </button>
                       </form>
                       <form action="http://localhost:5000/friendreq" method="POST">
-                        <input name="sendto" value=<%=h[name][1]%> hidden>
+                        <input name="sendto" value=${ids[i].innerHTML} hidden>
                         <input name="sendfrom" value=<%=id%> hidden>
                           <button>
                           <img
