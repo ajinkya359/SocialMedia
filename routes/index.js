@@ -80,4 +80,35 @@ if(req.session.user){
         res.send("Login first");
     }
 })
+router.get('/friends',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select * from frienduni where userid=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                if(err) res.send(err);
+                else if(!rows.length) res.send("You dont have any friends");
+                else{
+                    var friendsid=[];
+                    rows.forEach(id=>{
+                        friendsid.push(id.friendid);
+                    });
+                    mySqlConnection.query(
+                        'select * from users where id in ?',
+                        [([friendsid])],
+                        (err,friendrows)=>{
+                            if(err) res.send(err);
+                            else res.render('friends.ejs',{
+                                h:friendrows
+                            })
+                        }
+                    )
+                }
+            }
+        )
+    }
+    else{
+        res.send("Login first to view your friends")
+    }
+})
 module.exports = router;

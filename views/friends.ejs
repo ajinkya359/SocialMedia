@@ -35,17 +35,7 @@
               </a>
               <div class="user-info">
                 <div class="name">
-                  <span><%=h[name][0]%></span>
-                  <form action="http://localhost:5000/addfriend" method="POST">
-                    <input name="friendid" value=<%=h[name][1]%> hidden>
-                    <input name="userid" value=<%=id%> hidden>
-                      <button>
-                      <img
-                        src="https://static.xx.fbcdn.net/rsrc.php/v3/yl/r/kVdNswoBB9_.png"
-                      />
-                      <div>Friend</div>
-                    </button>
-                  </form>
+                  <span><%=h[name].name%></span>
                 </div>
               </div>
             </div>
@@ -59,6 +49,7 @@
       var lis = document.querySelectorAll(
         ".all-users ul li .block .user .user-info .name span"
       );
+
       console.log(lis);
       document
         .querySelector(".searchUser")
