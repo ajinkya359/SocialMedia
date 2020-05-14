@@ -7,13 +7,13 @@ create table friends
     (255), 
      email varchar
     (255), 
-     phone char
-    (10), 
-     relationship varchar
-    (255), 
-     userID int, 
-     FOREIGN KEY
-    (userID) REFERENCES users
-    (id)
+     hash 
+    varchar(255), 
+     phone 
+    char(10), 
+     image
+    varchar(255), 
+     
 );
+create table friendreq(touser int ,fromuser int);
 create table friends(friends int ,user int);
