@@ -1,7 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const mySqlConnection = require("../Database/database")
+const path=require('path');
+const multer=require('multer');
 
+const storage=multer.diskStorage({
+    destination:(req,files,cb)=>{
+        cb(null, '../public/Uploads');
+    },
+    filename: (req, file, cb) => {
+        cb(null,Date.now() + path.extname(file.originalname));
+    }
+})
+const uploads = multer({
+    storage: storage
+});
 router.get('/', (req, res) => res.status(200).send('home-page'));
 
 router.get('/dashboard', (req, res) => {
@@ -94,6 +107,29 @@ router.get('/friendreq',(req,res)=>{
         res.send("Login to view your friend requests");
     }
 })
+router.post('/upload',uploads.single('my-upload'),(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'insert into uploads(userid,image) values ?',
+            [[[req.session.user.id,req.file.filename]]],
+            (err)=>{
+                if(err) res.send(err);
+                else res.send("your file is uploaded");
+            }
+        )
+    }
+    else{
+        res.send("Login to post")
+    }
+})
+router.get('/upload',(req,res)=>{
+    if(req.session.user){
+        res.render('upload.ejs');
+    }
+    else{
+        res.send("Login first to upload stuff");
+    }
+})
 router.post('/managefreq',(req,res)=>{
     if(req.body.action){
         mySqlConnection.query(
@@ -136,6 +172,7 @@ router.post('/managefreq',(req,res)=>{
     }
 })
 router.post('/friendreq',(req,res)=>{
+    console.log(req.session.user.name)
     if(!req.body.sendto||!req.body.sendfrom)
     {
         res.send("Users id not found");
