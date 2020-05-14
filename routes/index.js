@@ -58,6 +58,134 @@ router.post('/addfollower', (req, res) => {
     
     
 })
+router.get('/friendreq',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select * from friendreq where touser=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                if(err) res.send(err);
+                else if(!rows.length) res.send("no friend requests");
+                else{ 
+                    var fromuserid=[];
+                    rows.forEach(user=>{
+                        fromuserid.push(user.fromuser);
+                    })
+                    var users=[];
+                    mySqlConnection.query(
+                        'select id,name,image from users where id=?',
+                        [([fromuserid])],
+                        (err,rows3)=>{
+                            if(err) res.send(err);
+                            else {
+                                res.render('friendreq.ejs',{
+                                    h:rows3,
+                                    id:req.session.user.id
+                                })  
+                            }
+                        }
+                    )
+                    
+            }
+            }
+        )
+    }
+    else{
+        res.send("Login to view your friend requests");
+    }
+})
+router.post('/managefreq',(req,res)=>{
+    if(req.body.action){
+        mySqlConnection.query(
+            'insert into friends(friends,user) values ?',
+        [[[req.body.from,req.body.to]]],
+        (err)=>{
+            if(err) res.send(err);
+            else{
+                mySqlConnection.query(
+                    'delete from friendreq where touser=? and fromuser=?',
+                    [req.body.to,req.body.from],
+                    (err)=>{
+                        if(err) res.send(err);
+                        else 
+                        {
+                            mySqlConnection.query(
+                                'insert into friends(friends,user) values ?',
+                            [[[req.body.to,req.body.from]]],
+                            (err)=>{
+                                if(err) res.send(err);
+                                else res.send("Friends added");
+                            }
+                            )
+                        }
+                    }
+        )
+            }
+        }
+        )
+    }
+    else{
+        mySqlConnection.query(
+            'delete from friendreq where touser=? and fromuser=?',
+            [req.body.to,req.body.from],
+            (err,rows)=>{
+                if(err) res.send(err);
+                else res.send("Request deleted")
+            }
+)
+    }
+})
+router.post('/friendreq',(req,res)=>{
+    if(!req.body.sendto||!req.body.sendfrom)
+    {
+        res.send("Users id not found");
+    }
+    else if(req.body.sendto===req.body.sendfrom)
+    {
+        res.send("You cannot add yourself as friend");
+    }
+    else{
+        mySqlConnection.query(
+            'select * from friends where friends=?',
+            [req.body.sendto],
+            (err,rows4)=>{
+                if(err) res.send(err);
+                else if(rows4.length) res.send("You are already his friend");
+                else{
+                    mySqlConnection.query(
+                        "select * from friendreq where touser=? and fromuser=?",
+                        [req.body.sendto,req.body.sendfrom],
+                        (err,rows1)=>{
+                            if(err) res.send(err);
+                            else if(rows1.length) res.send("You have already send the request to that person");
+                            else{
+                                mySqlConnection.query(
+                                    "select * from friendreq where touser=? and fromuser=?",
+                                    [req.body.sendfrom,req.body.sendto],
+                                    (err,rows2)=>{
+                                        if(err) res.send(err);
+                                        else if(rows2.length) res.send("You have a friends request from that user check friends requests send to you");
+                                        else{
+                                            mySqlConnection.query(
+                                                'insert into friendreq(touser,fromuser) values ?',
+                                                [[[req.body.sendto,req.body.sendfrom]]],
+                                                (err)=>{
+                                                    if(err) res.send(err);
+                                                    else res.send("Friend request send");
+                                                }
+                                )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        )
+        
+    }
+})
 router.get('/people', (req, res) => {
 if(req.session.user){
     mySqlConnection.query(
@@ -90,7 +218,6 @@ router.get('/following',(req,res)=>{
                 else if(!rows.length) res.send("You are not following anyone.");
                 else{
                     var friendsid=[];
-
                     rows.forEach(id=>{
                         friendsid.push(id.tofollowid);
                     });
@@ -117,7 +244,7 @@ router.get('/following',(req,res)=>{
 router.get('/friends',(req,res)=>{
     if(req.session.user){
         mySqlConnection.query(
-            'select * from frienduni where userid=?',
+            'select * from friends where user=?',
             [req.session.user.id],
             (err,rows)=>{
                 if(err) res.send(err);
@@ -125,7 +252,7 @@ router.get('/friends',(req,res)=>{
                 else{
                     var friendsid=[];
                     rows.forEach(id=>{
-                        friendsid.push(id.friendid);
+                        friendsid.push(id.friends);
                     });
                     mySqlConnection.query(
                         'select * from users where id in ?',
@@ -145,4 +272,5 @@ router.get('/friends',(req,res)=>{
         res.send("Login first to view your friends")
     }
 })
+
 module.exports = router;
