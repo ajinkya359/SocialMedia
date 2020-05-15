@@ -110,8 +110,8 @@ router.get('/friendreq',(req,res)=>{
 router.post('/upload',uploads.single('my-upload'),(req,res)=>{
     if(req.session.user){
         mySqlConnection.query(
-            'insert into uploads(userid,image) values ?',
-            [[[req.session.user.id,req.file.filename]]],
+            'insert into uploads(userid,image,username) values ?',
+            [[[req.session.user.id,req.file.filename,req.session.user.name]]],
             (err)=>{
                 if(err) res.send(err);
                 else res.send("your file is uploaded");
@@ -309,5 +309,57 @@ router.get('/friends',(req,res)=>{
         res.send("Login first to view your friends")
     }
 })
-
+router.get('/home',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select friends from friends where user=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                
+                if(err) res.send(err);
+                else if(!rows) res.send("You dont have any friends , make some to see their posts");
+                else{
+                    var friendid=[];
+                    rows.forEach(friend=>{
+                        friendid.push(friend.friends);
+                    })
+                    
+                    mySqlConnection.query(
+                        'select * from uploads where userid in ?',
+                        [([friendid])],//it has only the name feed posted of the user and id of user who posted it.
+                        (err,feeds)=>{
+                            
+                            if(err) res.send(err);
+                            else{
+                                var ids=[];
+                                feeds.forEach(feed=>{
+                                    ids.push(feed.userid);
+                                })
+                               
+                                mySqlConnection.query(
+                                    'select image from users where id in ?',
+                                    [([ids])],
+                                    (err,proi)=>{
+                                        
+                                        if(err) res.send(err);
+                                        else{
+                                            res.render('home.ejs',{
+                                                h:feeds,
+                                                userimages:proi
+                                            });
+                                        }
+                                    }
+                                )
+                                
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    }
+    else{
+        console.log('Login first');
+    }
+})
 module.exports = router;

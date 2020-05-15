@@ -31,6 +31,8 @@
     <a href="/friends"><i class="fa fa-users" aria-hidden="true"></i><span>Friends</span></a>
     <a href="/friendreq"><i class="fa fa-commenting" aria-hidden="true"></i><span>Requests</span></a>
     <a href="/upload"><i class="fa fa-commenting" aria-hidden="true"></i><span>Upload</span></a>
+    <a href="/home"><i class="fa fa-home" aria-hidden="true"></i><span>Home</span></a>
+
     <a href="#"><i class="fa fa-cogs" aria-hidden="true"></i><span>Components</span></a>
     <a href="#"><i class="fa fa-table" aria-hidden="true"></i><span>Tables</span></a>
     <a href="#"><i class="fa fa-th" aria-hidden="true"></i><span>Forms</span></a>
@@ -40,6 +42,48 @@
 </div>
 <div class="content">
 
-</div>
+    
+    
+    </div>
+     <script>
+      var lis = document.querySelectorAll(
+        ".all-users ul li .block .user .user-info .name .user-name"
+      );
+      var images=document.querySelectorAll(
+        ".all-users ul li .block .user .user-info .name .user-image"
+      );
+      document
+        .querySelector(".searchUser")
+        .addEventListener("change", function () {
+          document.querySelector(".all-users ul").innerHTML = " ";
+          for (var i = 0; i < lis.length; i++) {
+            if (
+              lis[i].innerHTML.includes(
+                document.querySelector(".searchUser").value
+              )
+            )
+              document.querySelector(
+                ".all-users ul"
+              ).innerHTML += `<li> <div class="block">
+                <div class="user">
+                  <a href="/chat    ">
+                    <img style="width: 150px;"
+                      class="user-image"
+                      src="/UserImages/${images[i].innerHTML}"
+                    />
+                  </a>
+                  <div class="user-info">
+                    <div class="name">
+                      <span class="user-name">${lis[i].innerHTML}</span>
+                      <span class="user-image" hidden>${images[i].innerHTML}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li></li>`;
+          }
+        });
+    </script>
+ 
 </body>
 </html>

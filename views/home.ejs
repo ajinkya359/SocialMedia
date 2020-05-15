@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Your feeds
+    </title>
+    <link rel="stylesheet" href="home.css">
+  </head>
+  <body>
+    <div class="main">
+      <div class="heading">
+        Feeds
+      </div>
+      
+          <%for(user in h){%>
+        
+                <article class="feed">
+                    <header class="poster-info">
+                      <div class="name">
+                        <img class ="user-image"src="/UserImages/<%=userimages[user].image%>">
+                      </div>
+                      <div class="info">
+                        <%=h[user].username%>
+                      </div>
+                    </header>
+                   <div class="main-content">
+            <img src="/uploads/<%=h[user].image%>" >
+                   </div>
+                   <div class="reactions">
+                    <button class="likes">Like<span><%=h[user].likes%></span></button>
+                   </div>
+                  </article>
+                  
+            
+            <%}%>
+      
+    
+    </div>
+  </body>
+</html>
