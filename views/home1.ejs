@@ -27,8 +27,8 @@
             <img src="/uploads/<%=h[user].image%>" >
                    </div>
                    <div class="reactions">
-
-                        Likes   <button class="likes" id='<%=h[user].id%>' onclick="hi(this)"><%=h[user].likes%></button>
+                       
+                           <button class="likes" id='<%=h[user].id%>' onclick="hi(this)"><%=h[user].likes%></button>
                        
 
                    </div>
@@ -40,15 +40,15 @@
     
     </div>
   <script>
-    
 function hi(t){
-
+  console.log('hi')
 var btn=document.getElementById(`${t.id}`);
 var http=new XMLHttpRequest();
 http.open('post','http://localhost:5000/likes')
 http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 http.send(`imageid=${t.id}`)
 http.onload=()=>{
+  console.log(http.responseText);
   var likes=JSON.parse(http.responseText);
   btn.innerHTML=likes;
 }

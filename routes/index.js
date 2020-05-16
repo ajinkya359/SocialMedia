@@ -353,13 +353,81 @@ router.post('/likes',(req,res)=>{
             [req.body.imageid],
             (err)=>{
                 if(err)res.send(err);
-                else res.send("You liked this post");
+                else 
+                {
+                    mySqlConnection.query(
+                        'select likes from uploads where id=?',
+                        [req.body.imageid],
+                        (err,row)=>{
+                            if(err) res.send(err);
+                            else{
+                                
+                                res.send(JSON.stringify(row[0].likes))
+                            }
+                        } 
+                    )
+                }
             }
         )
 
     }
     else{
         res.send("Login first to like posts");
+    }
+})
+// router.get('/try',(req,res)=>{
+//     mySqlConnection.query(
+//         'select * from users where name=?',
+//         [req.body.name],
+//         (err,rows)=>{
+//             if(err) res.send(err);
+//             else res.send(JSON.stringify(rows));
+//         }
+//     )
+// })
+router.get('/try',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select friends from friends where user=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                
+                if(err) res.send(err);
+                else if(!rows) res.send("You dont have any friends , make some to see their posts");
+                else{
+                    var friendid=[];
+                    rows.forEach(friend=>{
+                        friendid.push(friend.friends);
+                    })
+                    
+                    mySqlConnection.query(
+                        'select * from uploads where userid in ? order by id desc',
+                        [([friendid])],//it has only the name feed posted of the user and id of user who posted it ans there profile image.
+                        (err,feeds)=>{
+                            if(err) res.send(err);
+                            else{
+                                res.render('home.ejs',{
+                                    h:feeds
+                                });
+
+                                
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    }
+    else{
+        console.log('Login first');
+    }
+})
+router.post('/updatelikes',(req,res)=>{
+    if(req.session.user){
+        
+    }
+    else{
+        res.send("login first");
     }
 })
 module.exports = router;
