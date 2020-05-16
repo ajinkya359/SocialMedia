@@ -110,8 +110,8 @@ router.get('/friendreq',(req,res)=>{
 router.post('/upload',uploads.single('my-upload'),(req,res)=>{
     if(req.session.user){
         mySqlConnection.query(
-            'insert into uploads(userid,image,username) values ?',
-            [[[req.session.user.id,req.file.filename,req.session.user.name]]],
+            'insert into uploads(userid,image,username,userimage) values ?',
+            [[[req.session.user.id,req.file.filename,req.session.user.name,req.session.user.image]]],
             (err)=>{
                 if(err) res.send(err);
                 else res.send("your file is uploaded");
@@ -183,8 +183,8 @@ router.post('/friendreq',(req,res)=>{
     }
     else{
         mySqlConnection.query(
-            'select * from friends where friends=?',
-            [req.body.sendto],
+            'select * from friends where friends=? and user=?',
+            [req.body.sendto,req.body.sendfrom],
             (err,rows4)=>{
                 if(err) res.send(err);
                 else if(rows4.length) res.send("You are already his friend");
@@ -325,31 +325,16 @@ router.get('/home',(req,res)=>{
                     })
                     
                     mySqlConnection.query(
-                        'select * from uploads where userid in ?',
-                        [([friendid])],//it has only the name feed posted of the user and id of user who posted it.
+                        'select * from uploads where userid in ? order by id desc',
+                        [([friendid])],//it has only the name feed posted of the user and id of user who posted it ans there profile image.
                         (err,feeds)=>{
                             
                             if(err) res.send(err);
                             else{
-                                var ids=[];
-                                feeds.forEach(feed=>{
-                                    ids.push(feed.userid);
-                                })
-                               
-                                mySqlConnection.query(
-                                    'select image from users where id in ?',
-                                    [([ids])],
-                                    (err,proi)=>{
-                                        
-                                        if(err) res.send(err);
-                                        else{
-                                            res.render('home.ejs',{
-                                                h:feeds,
-                                                userimages:proi
-                                            });
-                                        }
-                                    }
-                                )
+                                res.render('home.ejs',{
+                                    h:feeds
+                                });
+
                                 
                             }
                         }
