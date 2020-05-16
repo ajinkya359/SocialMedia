@@ -27,7 +27,12 @@
             <img src="/uploads/<%=h[user].image%>" >
                    </div>
                    <div class="reactions">
-                    <button class="likes">Like<span><%=h[user].likes%></span></button>
+                       <form action="/likes" method="post">
+
+                           <input name="imageid" value=<%=h[user].id%> hidden>
+                           <button class="likes">Like<span><%=h[user].likes%></span></button>
+                       </form>
+
                    </div>
                   </article>
                   
@@ -36,5 +41,8 @@
       
     
     </div>
+  <script>
+
+  </script>
   </body>
 </html>

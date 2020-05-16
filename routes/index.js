@@ -328,7 +328,6 @@ router.get('/home',(req,res)=>{
                         'select * from uploads where userid in ? order by id desc',
                         [([friendid])],//it has only the name feed posted of the user and id of user who posted it ans there profile image.
                         (err,feeds)=>{
-                            
                             if(err) res.send(err);
                             else{
                                 res.render('home.ejs',{
@@ -345,6 +344,22 @@ router.get('/home',(req,res)=>{
     }
     else{
         console.log('Login first');
+    }
+})
+router.post('/likes',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'update uploads set likes=likes+1 where id=?',
+            [req.body.imageid],
+            (err)=>{
+                if(err)res.send(err);
+                else res.send("You liked this post");
+            }
+        )
+
+    }
+    else{
+        res.send("Login first to like posts");
     }
 })
 module.exports = router;
