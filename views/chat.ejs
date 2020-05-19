@@ -64,6 +64,7 @@
     </div>
     <div >
       <h1>Online user</h1>
+      <button onclick="global(this)" id="global">Global</button>
       <ul id="online-users" style="overflow-y: auto;"></ul>
 
     </div>
@@ -71,17 +72,34 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      
+      var current=""
+      var temp=document.getElementById('global');
+      temp.style="background-color:aqua"
+      function global(button){
+        temp.style="background-color:white"
+        temp=button
+        current =""
+        button.style="background-color:aqua"
+        
+      }
+      function talkinprivate(button){
+        temp.style="background-color:white"
+        temp=button
+        current=button.value;
+        button.style="background-color:aqua"
+        current="/w "+current
+      }
       const socket = io();//and this is the socket from 
       function newuser(){
         socket.emit('newUser',document.getElementById('name').value);
+
       }
       newuser();
       document.querySelector('form').addEventListener('submit',(event)=>{
-        var msg=document.getElementById("m").value.trim();
+        var msg=current+" "+document.getElementById("m").value.trim();
         event.preventDefault();
         
-        socket.emit('chat-message',document.getElementById('name').value,document.getElementById("m").value,function(data){
+        socket.emit('chat-message',document.getElementById('name').value,msg,function(data){
           document.querySelector('#messages').innerHTML+=`<li class="err"> ${data}</li>`;
 
         });
@@ -103,7 +121,7 @@
       socket.on('newUser',(onlineUsers)=>{
         document.querySelector('#online-users').innerHTML=" ";
         onlineUsers.forEach(name => {
-          document.querySelector('#online-users').innerHTML+=`<li >${name}</li>`;
+          document.querySelector('#online-users').innerHTML+=`<li><button value="${name}" onclick="talkinprivate(this)">${name}</button></li>`;
         });
       })
       socket.on('private-message',(from,message)=>{

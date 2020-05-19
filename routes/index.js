@@ -30,6 +30,16 @@ router.get('/dashboard', (req, res) => {
 router.get('/chat', (req, res) => {
     if (req.session.user) {
         res.render("chat.ejs", {
+            name: req.session.user.name,
+            id:req.session.user.id
+        });
+    } else {
+        res.status(404).send("Sorry But you need to login first");
+    }
+})
+router.get('/chat1', (req, res) => {
+    if (req.session.user) {
+        res.render("chat1.ejs", {
             name: req.session.user.name
         });
     } else {
@@ -422,12 +432,43 @@ router.get('/try',(req,res)=>{
         console.log('Login first');
     }
 })
-router.post('/updatelikes',(req,res)=>{
-    if(req.session.user){
+// router.post('/updatelikes',(req,res)=>{
+//     if(req.session.user){
         
+//     }
+//     else{
+//         res.send("login first");
+//     }
+// })
+router.get('/chat-friends',(req,res)=>{
+    if(req.session.user){
+        mySqlConnection.query(
+            'select friends from friends where user=?',
+            [req.session.user.id],
+            (err,rows)=>{
+                if(err) res.send(err)
+                else{
+                    var ids=[];
+                    rows.forEach(friend=>[
+                        ids.push(friend.friends)
+                    ])
+                    mySqlConnection.query(
+                        'select id,name,image from users where id in ?',
+                        [([ids])],
+                        (err,row1)=>{
+                            if(err) res.send(err);
+                            else {
+                                console.log(JSON.stringify(row1))
+                                res.send(JSON.stringify(row1));
+                            }
+                        }
+                    )
+                }
+            }
+        )
     }
     else{
-        res.send("login first");
+        res.send("login first")
     }
 })
 module.exports = router;
