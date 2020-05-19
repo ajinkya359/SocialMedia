@@ -5,9 +5,9 @@ const socket = require('socket.io');
 const session = require("express-session");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
-app.use(express.static("../public"));
+app.use(express.static("./public"));
 app.set("views engine", "ejs");
-app.set("views", "../views");
+app.set("views", "./views");
 onlineusers = {};
 
 app.use(cors());
